@@ -7,7 +7,8 @@ export async function POST(req) {
   const timestamp = req.headers.get("X-RelayOps-Timestamp");
   const signature = req.headers.get("X-RelayOps-Signature");
   const secret = process.env.RELAYOPS_DEMO_SECRET;
-  if (secret && timestamp && signature) {
+  if (secret) {
+    if (!timestamp || !signature || !Number.isFinite(Number(timestamp))) return Response.json({error:"Missing signature headers"},{status:401});
     const expected = "sha256=" + createHmac("sha256", secret).update(timestamp + "." + raw).digest("hex");
     const a = Buffer.from(signature), b = Buffer.from(expected);
     if (a.length !== b.length || !timingSafeEqual(a,b)) return Response.json({error:"Invalid signature"},{status:401});
