@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useState} from "react";
-import {Webhook,Activity,RefreshCw,Plus,Zap,ShieldCheck,Code2} from "lucide-react";
+import {Webhook,RefreshCw,Plus,Zap,Code2} from "lucide-react";
 function Badge({s}){return <span className={"pill "+s}>{s==="dead_letter"?"dead letter":s}</span>}
 export default function Dashboard(){
  const [stats,S]=useState(null),[events,E]=useState([]),[endpoints,D]=useState([]),[notice,N]=useState(""),[busy,B]=useState(false),[modal,M]=useState(false),[form,F]=useState({name:"",url:"",eventTypes:"*",secret:""});
@@ -9,12 +9,11 @@ export default function Dashboard(){
  async function worker(){B(true);try{const r=await fetch("/api/worker/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({limit:20})}),d=await r.json();if(!r.ok)throw Error(d.error);N("Worker processed "+d.processed+" delivery job(s).");await refresh();}catch(e){N(e.message)}finally{B(false)}}
  async function toggleEndpoint(id,enabled){try{const r=await fetch("/api/endpoints",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,enabled})}),d=await r.json();if(!r.ok)throw Error(d.error);N(enabled?"Destination enabled.":"Destination paused.");await refresh();}catch(e){N(e.message)}}
  async function add(e){e.preventDefault();try{const r=await fetch("/api/endpoints",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...form,eventTypes:form.eventTypes.split(",").map(x=>x.trim()).filter(Boolean)})}),d=await r.json();if(!r.ok)throw Error(d.error);M(false);F({name:"",url:"",eventTypes:"*",secret:""});N("Destination added.");await refresh();}catch(e){N(e.message)}}
- const rate=stats?.total?Math.round(stats.delivered/stats.total*100):0;
  return <div className="shell">
   <aside className="sidebar">
    <div className="brand"><span className="mark"><Webhook size={19}/></span>relay<span style={{color:"#9384ff"}}>ops</span></div>
    <nav><div className="nav-label">WORKSPACE</div><a className="nav active" href="#">▦　Overview</a><a className="nav" href="#deliveries">↗　Delivery history</a><a className="nav" href="#destinations">◎　Destinations</a><div className="nav-label">GET STARTED</div><a className="nav" href="#quickstart">⌘　Send a test event</a></nav>
-   <div className="sidefoot"><b style={{color:"#5ee0ac"}}>● App is running</b><p className="muted">Local development workspace</p></div>
+   <div className="sidefoot"><b style={{color:"#5ee0ac"}}>● LOCAL DEMO</b><p className="muted">Local development workspace</p></div>
   </aside>
   <main className="main">
    <div className="top"><div><div className="eyebrow">RELAYOPS / WORKSPACE</div><h1>Overview</h1><div className="muted small">See what RelayOps has received and whether your webhooks were delivered.</div></div><div style={{display:"flex",gap:8,flexWrap:"wrap"}}><button className="btn" onClick={refresh}><RefreshCw size={14}/> Refresh</button><button className="btn primary" disabled={busy} onClick={worker}><Zap size={14}/>{busy?"Processing…":"Process pending deliveries"}</button></div></div>
