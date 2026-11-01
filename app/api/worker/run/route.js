@@ -41,6 +41,8 @@ export async function POST(req) {
   const adminToken=process.env.RELAYOPS_ADMIN_TOKEN;
   if(adminToken && req.headers.get("Authorization")!=="Bearer "+adminToken) return Response.json({error:"Unauthorized"},{status:401});
   let b={}; try { b=await req.json(); } catch {}
+  const staleBefore=new Date(Date.now()-60_000);
+  await prisma.delivery.updateMany({where:{status:"processing",updatedAt:{lt:staleBefore}},data:{status:"queued",nextAttemptAt:new Date()}});
   const limit=Math.min(50,Math.max(1,Number(b.limit)||10));
   const jobs=await prisma.delivery.findMany({where:{status:{in:["queued","retrying"]},nextAttemptAt:{lte:new Date()}},orderBy:[{nextAttemptAt:"asc"},{createdAt:"asc"}],take:limit,include:{event:true,endpoint:true}});
   const results=await Promise.all(jobs.map(processJob));
