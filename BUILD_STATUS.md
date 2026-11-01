@@ -18,10 +18,10 @@
 See PRODUCT_SCOPE.md for the full feature list, demo walkthrough, boundaries, and definition of done.
 
 ### Milestone 1 — Make the core workflow demonstrable
-- [ ] Event explorer and event detail page with formatted payload.
-- [ ] Delivery detail page with full attempt timeline and response/error information.
+- [x] Event detail page with formatted payload and related deliveries; recent delivery rows link to the event inspector.
+- [x] Delivery attempt timeline with HTTP status, response excerpt, error, duration, and timestamp.
 - [ ] Destination create/edit/enable/disable and event-type subscriptions.
-- [ ] Manual retry/replay from the dashboard.
+- [x] Manual retry action for dead-letter deliveries from the event inspector.
 - [ ] Sample receiver with controllable success and failure responses.
 
 ### Milestone 2 — Make delivery reliable
