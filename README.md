@@ -40,7 +40,7 @@ Open http://localhost:3000. Add this destination from the dashboard:
 http://localhost:3000/api/demo/receiver
 ```
 
-The demo receiver runs on the same Next.js app. If you run the app on another port, update the destination URL.
+The demo receiver runs on the same Next.js app. If you run the app on another port, update the destination URL. Loopback destinations are permitted only in development. For signature verification, set `RELAYOPS_DEMO_SECRET` in `.env` and enter the exact same value in the destination “Signing secret” field.
 
 ## Publish an event
 
@@ -99,6 +99,7 @@ See [.env.example](./.env.example).
 - `DATABASE_URL`: SQLite URL for the current local demo.
 - `RELAYOPS_API_KEY`: optional bearer token required for event ingestion when set.
 - `RELAYOPS_ADMIN_TOKEN`: optional bearer token required for the manual worker endpoint when set.
+- `RELAYOPS_DEMO_SECRET`: optional shared secret required by the included receiver to verify timestamped HMAC signatures.
 
 ## API
 
