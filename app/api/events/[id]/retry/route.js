@@ -1,0 +1,3 @@
+import {prisma} from "@/lib/prisma";
+import {jsonError} from "@/lib/http";
+export async function POST(_req,{params}){const d=await prisma.delivery.findUnique({where:{id:params.id}});if(!d)return jsonError("Delivery not found.",404);if(d.status==="delivered")return jsonError("A successful delivery cannot be retried.",409);await prisma.delivery.update({where:{id:params.id},data:{status:"queued",attemptCount:0,nextAttemptAt:new Date(),lastError:null,lastStatusCode:null}});return Response.json({success:true,message:"Delivery queued for manual retry."});}
