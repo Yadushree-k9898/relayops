@@ -1,0 +1,52 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "sqlite" url = env("DATABASE_URL") }
+model Endpoint {
+ id String @id @default(cuid())
+ name String
+ url String
+ secret String?
+ enabled Boolean @default(true)
+ eventTypes String @default("[\"*\"]")
+ createdAt DateTime @default(now())
+ deliveries Delivery[]
+}
+model Event {
+ id String @id @default(cuid())
+ type String
+ payload String
+ idempotencyKey String? @unique
+ createdAt DateTime @default(now())
+ deliveries Delivery[]
+}
+model Delivery {
+ id String @id @default(cuid())
+ eventId String
+ endpointId String
+ status String @default("queued")
+ attemptCount Int @default(0)
+ maxAttempts Int @default(5)
+ nextAttemptAt DateTime @default(now())
+ lastStatusCode Int?
+ lastError String?
+ deliveredAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ event Event @relation(fields:[eventId],references:[id],onDelete:Cascade)
+ endpoint Endpoint @relation(fields:[endpointId],references:[id],onDelete:Cascade)
+ attempts Attempt[]
+ @@index([status,nextAttemptAt])
+ @@index([eventId])
+}
+model Attempt {
+ id String @id @default(cuid())
+ deliveryId String
+ attemptNumber Int
+ status String
+ statusCode Int?
+ responseBody String?
+ error String?
+ durationMs Int?
+ createdAt DateTime @default(now())
+ delivery Delivery @relation(fields:[deliveryId],references:[id],onDelete:Cascade)
+ @@index([deliveryId,createdAt])
+}
