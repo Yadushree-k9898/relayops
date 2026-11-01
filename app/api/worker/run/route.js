@@ -1,6 +1,7 @@
 import {prisma} from "@/lib/prisma";
 import {calculateRetryDelay,safeJsonParse,shouldRetry} from "@/lib/reliability";
 import {createHmac} from "node:crypto";
+import {isValidHttpUrl} from "@/lib/http";
 
 async function processJob(job) {
   const claim=await prisma.delivery.updateMany({where:{id:job.id,status:job.status,nextAttemptAt:{lte:new Date()}},data:{status:"processing"}});
@@ -8,6 +9,7 @@ async function processJob(job) {
   const started=Date.now(),number=job.attemptCount+1;
   let code=null,text=null,error=null,retryAfter=null;
   try {
+    if(!isValidHttpUrl(job.endpoint.url)) throw new Error("Destination URL is blocked by the outbound URL safety policy.");
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
     const payload=JSON.stringify({id:job.event.id,type:job.event.type,data:safeJsonParse(job.event.payload),createdAt:job.event.createdAt});
     const timestamp=String(Math.floor(Date.now()/1000));
